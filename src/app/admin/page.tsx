@@ -8,6 +8,8 @@ import {
   MessageSquare,
   Smartphone,
 } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function AdminDashboard() {
   return (
@@ -70,39 +72,42 @@ export default function AdminDashboard() {
         </Card>
         <div className="col-span-4 lg:col-span-3 space-y-4">
            <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader>
               <CardTitle className="text-sm font-medium">Stock Management</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Manage Products</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-4">
                 Update stock levels and product details.
               </p>
+               <Button asChild>
+                <Link href="/admin/stock">Manage Stock</Link>
+              </Button>
             </CardContent>
           </Card>
            <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader>
               <CardTitle className="text-sm font-medium">Bulk SMS</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Send Messages</div>
-              <p className="text-xs text-muted-foreground">
+               <p className="text-sm text-muted-foreground mb-4">
                 Contact all or selected users.
               </p>
+              <Button asChild>
+                <Link href="/admin/sms">Send SMS</Link>
+              </Button>
             </CardContent>
           </Card>
            <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader>
               <CardTitle className="text-sm font-medium">USSD Users</CardTitle>
-              <Smartphone className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Manage USSD</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-4">
                 View and manage USSD registrations.
               </p>
+              <Button asChild>
+                <Link href="/admin/ussd">Manage USSD Users</Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
