@@ -10,6 +10,7 @@ import { Menu } from "lucide-react";
 const navLinks = [
     { href: "/products", label: "Our Products" },
     { href: "/stores", label: "Find Us" },
+    { href: "/admin", label: "Admin" },
 ];
 
 export function Header() {
