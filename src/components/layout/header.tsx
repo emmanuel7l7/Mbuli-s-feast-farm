@@ -5,7 +5,7 @@ import { LanguageToggle } from "../language-toggle";
 import ChickenIcon from "../icons/chicken-icon";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
-import { Menu, User } from "lucide-react";
+import { Menu } from "lucide-react";
 
 const navLinks = [
     { href: "/products", label: "Our Products" },
@@ -68,11 +68,8 @@ export function Header() {
                 <div className="flex flex-1 items-center justify-end space-x-2">
                     <LanguageToggle />
                     <ThemeToggle />
-                    <Button asChild variant="ghost" size="icon">
-                        <Link href="/login">
-                            <User />
-                            <span className="sr-only">Login</span>
-                        </Link>
+                    <Button asChild>
+                        <Link href="/login">Login</Link>
                     </Button>
                 </div>
             </div>
