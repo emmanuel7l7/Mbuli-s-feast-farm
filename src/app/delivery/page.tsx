@@ -54,7 +54,7 @@ export default function DeliveryDashboardPage() {
                     activeOrder = {
                         id: latestOrder.id,
                         customer: latestOrder.customer,
-                        pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam",
+                        pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam, Tanzania",
                         deliveryAddress: latestOrder.deliveryAddress,
                         customerPhone: latestOrder.phone,
                         items: latestOrder.items
