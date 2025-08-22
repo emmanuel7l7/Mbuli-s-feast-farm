@@ -38,6 +38,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { PlusCircle, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image";
+
 
 type Product = {
   id: string;
@@ -101,6 +103,18 @@ export default function StockManagementPage() {
       const { id, value } = e.target;
       setProductForm(prev => ({...prev, [id]: value}));
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProductForm(prev => ({ ...prev, image: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   const handleAddProduct = () => {
     if (!validateForm()) return;
@@ -266,9 +280,16 @@ export default function StockManagementPage() {
               <Input id="stock" type="number" value={productForm.stock} onChange={handleFormChange} className="col-span-3" placeholder="e.g., 100" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="image" className="text-right">Image URL</Label>
-              <Input id="image" value={productForm.image} onChange={handleFormChange} className="col-span-3" placeholder="https://..."/>
+              <Label htmlFor="image" className="text-right">Image</Label>
+              <Input id="image" type="file" onChange={handleImageChange} accept="image/*" className="col-span-3" />
             </div>
+            {productForm.image && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <div className="col-start-2 col-span-3">
+                  <Image src={productForm.image} alt="Product preview" width={100} height={100} className="rounded-md border"/>
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -288,3 +309,5 @@ export default function StockManagementPage() {
     </>
   )
 }
+
+    
