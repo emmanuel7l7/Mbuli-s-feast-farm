@@ -71,13 +71,11 @@ export default function AnalyticsPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>(initialRecentOrders);
 
   useEffect(() => {
-    // Check localStorage for recently placed orders and prepend them
     const storedOrdersData = localStorage.getItem('recent_orders');
     if (storedOrdersData) {
       try {
         const storedOrders = JSON.parse(storedOrdersData);
         
-        // Adapt saved order format to the one used on this page
         const formattedStoredOrders: Order[] = storedOrders.map((o: any) => ({
           id: o.id,
           customer: o.customer,
@@ -86,18 +84,16 @@ export default function AnalyticsPage() {
           status: o.status
         }));
 
-        // Avoid duplicates and merge with initial data
         const combined = [...formattedStoredOrders, ...initialRecentOrders];
         const uniqueOrders = Array.from(new Set(combined.map(o => o.id)))
                                   .map(id => combined.find(o => o.id === id)!);
 
-        setRecentOrders(uniqueOrders.slice(0, 5)); // show latest 5
+        setRecentOrders(uniqueOrders.slice(0, 5));
       } catch (error) {
           console.error("Failed to parse recent orders from localStorage", error);
       }
     }
   }, []);
-
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
