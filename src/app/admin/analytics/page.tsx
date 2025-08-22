@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -30,6 +31,14 @@ import {
   Bar,
 } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+
+
+
+// Memoized Table for recent orders
+// (Removed duplicate MemoTable declaration)
+
+// Memoized BarChart for products
+// (Removed duplicate MemoBarChart declaration)
 
 const salesData = [
   { name: 'Jan', sales: 4000 },
@@ -67,6 +76,66 @@ type Order = {
   status: string;
 }
 
+// Memoized Card for performance
+const MemoCard = React.memo(({ title, icon, value, description }: { title: string; icon: React.ReactNode; value: string; description: string }) => (
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      {icon}
+    </CardHeader>
+    <CardContent>
+      <div className="text-xl font-bold">{value}</div>
+      <p className="text-xs text-muted-foreground">{description}</p>
+    </CardContent>
+  </Card>
+));
+
+// Memoized Table for recent orders
+const MemoTable = React.memo(({ recentOrders }: { recentOrders: Order[] }) => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead>Order ID</TableHead>
+        <TableHead>Customer</TableHead>
+        <TableHead className="text-right">Amount (TZS)</TableHead>
+        <TableHead>Status</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {recentOrders.map((order) => (
+        <TableRow key={order.id}>
+          <TableCell className="font-medium">{order.id}</TableCell>
+          <TableCell>{order.customer}</TableCell>
+          <TableCell className="text-right">{order.amount.toLocaleString()}</TableCell>
+          <TableCell>
+            <Badge variant={order.status === "Completed" ? "default" : "secondary"}>{order.status}</Badge>
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+));
+
+// Memoized BarChart for products
+const MemoBarChart = React.memo(({ title, description, data, barColor }: { title: string; description: string; data: { name: string; sales: number }[]; barColor: string }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+      <CardDescription>{description}</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={data} layout="vertical">
+          <XAxis type="number" hide />
+          <YAxis type="category" dataKey="name" width={150} stroke="hsl(var(--foreground))" />
+          <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} />
+          <Bar dataKey="sales" fill={barColor} radius={[0, 4, 4, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
+));
+
 export default function AnalyticsPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>(initialRecentOrders);
 
@@ -96,136 +165,54 @@ export default function AnalyticsPage() {
   }, []);
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Sales Analytics</h2>
-      </div>
+    <>
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Sales Analytics</h2>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">TZS 45,231,890</div>
-            <p className="text-xs text-muted-foreground">
-              +20.1% from last month
-            </p>
-          </CardContent>
-        </Card>
-         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Top Selling Product</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">Whole Chicken</div>
-            <p className="text-xs text-muted-foreground">
-              1,200 units sold this month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Least Selling Product</CardTitle>
-             <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">Chicken Wings (1kg)</div>
-            <p className="text-xs text-muted-foreground">
-              150 units sold this month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <MemoCard title="Total Revenue" icon={<DollarSign className="h-4 w-4 text-muted-foreground" />} value="TZS 45,231,890" description="+20.1% from last month" />
+          <MemoCard title="Top Selling Product" icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />} value="Whole Chicken" description="1,200 units sold this month" />
+          <MemoCard title="Least Selling Product" icon={<TrendingDown className="h-4 w-4 text-muted-foreground" />} value="Chicken Wings (1kg)" description="150 units sold this month" />
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Sales Trend</CardTitle>
-            <CardDescription>Monthly sales performance.</CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="sales" stroke="hsl(var(--primary))" activeDot={{ r: 8 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card className="col-span-4 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>
-              Here are the latest transactions.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="text-right">Amount (TZS)</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
-                    <TableCell>{order.customer}</TableCell>
-                    <TableCell className="text-right">{order.amount.toLocaleString()}</TableCell>
-                    <TableCell>
-                       <Badge variant={order.status === "Completed" ? "default" : "secondary"}>{order.status}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-
-       <div className="grid gap-4 md:grid-cols-2">
-         <Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Card className="col-span-4">
             <CardHeader>
-                <CardTitle>Top Selling Products</CardTitle>
-                <CardDescription>Your best-performing products this month.</CardDescription>
-            </Header>
-            <CardContent>
-                 <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={topProducts} layout="vertical">
-                        <XAxis type="number" hide />
-                        <YAxis type="category" dataKey="name" width={150} stroke="hsl(var(--foreground))" />
-                        <Tooltip cursor={{fill: 'hsl(var(--muted))'}}/>
-                        <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
+              <CardTitle>Sales Trend</CardTitle>
+              <CardDescription>Monthly sales performance.</CardDescription>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={salesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="sales" stroke="hsl(var(--primary))" activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
             </CardContent>
-         </Card>
-         <Card>
+          </Card>
+          <Card className="col-span-4 lg:col-span-3">
             <CardHeader>
-                <CardTitle>Least Selling Products</CardTitle>
-                <CardDescription>Products that are underperforming this month.</CardDescription>
-            </Header>
+              <CardTitle>Recent Orders</CardTitle>
+              <CardDescription>
+                Here are the latest transactions.
+              </CardDescription>
+            </CardHeader>
             <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={leastProducts} layout="vertical">
-                        <XAxis type="number" hide />
-                        <YAxis type="category" dataKey="name" width={150} stroke="hsl(var(--foreground))" />
-                         <Tooltip cursor={{fill: 'hsl(var(--muted))'}}/>
-                        <Bar dataKey="sales" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
+              <MemoTable recentOrders={recentOrders} />
             </CardContent>
-         </Card>
-       </div>
-    </div>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <MemoBarChart title="Top Selling Products" description="Your best-performing products this month." data={topProducts} barColor="hsl(var(--primary))" />
+          <MemoBarChart title="Least Selling Products" description="Products that are underperforming this month." data={leastProducts} barColor="hsl(var(--destructive))" />
+        </div>
+      </div>
+    </>
   );
 }
