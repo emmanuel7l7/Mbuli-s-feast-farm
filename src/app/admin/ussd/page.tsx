@@ -1,4 +1,7 @@
 
+'use client'
+
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,25 +10,52 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, MessageSquare, Eye } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import { useToast } from "@/hooks/use-toast";
 
-const dummyUssdUsers = [
+type UssdUser = {
+    id: string;
+    name: string;
+    phone: string;
+    registrationDate: string;
+};
+
+const dummyUssdUsers: UssdUser[] = [
   { id: "USSD-001", name: "Juma H", phone: "+255 655 111 222", registrationDate: "2023-10-26" },
   { id: "USSD-002", name: "Asha R", phone: "+255 788 333 444", registrationDate: "2023-10-25" },
   { id: "USSD-003", name: "Musa K", phone: "+255 677 555 666", registrationDate: "2023-10-24" },
 ];
 
 export default function UssdUsersPage() {
+  const [users, setUsers] = useState<UssdUser[]>(dummyUssdUsers);
+  const { toast } = useToast();
+
+  const handleSendSms = (user: UssdUser) => {
+    toast({
+        title: "Action Triggered",
+        description: `Preparing to send SMS to ${user.name} (${user.phone}).`
+    });
+    // In a real app, you would redirect to the SMS page or open a modal.
+    // For now, we just show a notification.
+  };
+
+  const handleViewDetails = (user: UssdUser) => {
+     toast({
+        title: "User Details",
+        description: `ID: ${user.id}, Name: ${user.name}, Phone: ${user.phone}, Registered: ${user.registrationDate}`,
+    });
+  };
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -43,17 +73,17 @@ export default function UssdUsersPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Phone Number</TableHead>
                 <TableHead>Registration Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dummyUssdUsers.map((user) => (
+              {users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.id}</TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.phone}</TableCell>
                   <TableCell>{user.registrationDate}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -63,8 +93,15 @@ export default function UssdUsersPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Send SMS</DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleSendSms(user)}>
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Send SMS
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewDetails(user)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
