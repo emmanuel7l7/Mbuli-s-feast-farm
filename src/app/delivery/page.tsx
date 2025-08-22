@@ -7,7 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Package, Navigation, Phone, Loader2 } from "lucide-react";
 
-const initialOrder = {
+type OrderItem = {
+    name: string;
+    quantity: number;
+};
+
+type Order = {
+    id: string;
+    customer: string;
+    pickupAddress: string;
+    deliveryAddress: string;
+    customerPhone: string;
+    items: OrderItem[];
+};
+
+const initialOrder: Order = {
     id: "ORD-015",
     customer: "Sam Doe",
     pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam",
@@ -18,8 +32,6 @@ const initialOrder = {
         { name: "Chicken Thighs (1kg)", quantity: 1 },
     ]
 };
-
-type Order = typeof initialOrder;
 
 export default function DeliveryDashboardPage() {
     const router = useRouter();
@@ -34,23 +46,27 @@ export default function DeliveryDashboardPage() {
         } else {
             setIsAuthenticated(true);
             
-            // Check for the latest order from localStorage
             const latestOrderData = localStorage.getItem('latest_order');
+            let activeOrder: Order;
             if (latestOrderData) {
-                const latestOrder = JSON.parse(latestOrderData);
-                // Adapt the saved order format to the component's expected format
-                const formattedOrder = {
-                    id: latestOrder.id,
-                    customer: latestOrder.customer,
-                    pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam",
-                    deliveryAddress: latestOrder.deliveryAddress,
-                    customerPhone: latestOrder.phone,
-                    items: latestOrder.items
-                };
-                setOrder(formattedOrder);
+                try {
+                    const latestOrder = JSON.parse(latestOrderData);
+                    activeOrder = {
+                        id: latestOrder.id,
+                        customer: latestOrder.customer,
+                        pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam",
+                        deliveryAddress: latestOrder.deliveryAddress,
+                        customerPhone: latestOrder.phone,
+                        items: latestOrder.items
+                    };
+                } catch(e) {
+                    console.error("Failed to parse latest order", e);
+                    activeOrder = initialOrder;
+                }
             } else {
-                setOrder(initialOrder); // Fallback to initial dummy data
+                activeOrder = initialOrder; // Fallback to initial dummy data
             }
+            setOrder(activeOrder);
         }
     }, [router]);
 
@@ -63,6 +79,7 @@ export default function DeliveryDashboardPage() {
 
     const handleLogout = () => {
         localStorage.removeItem('delivery_auth');
+        localStorage.removeItem('latest_order'); // Also clear the order on logout
         router.push('/delivery/login');
     };
     
@@ -97,7 +114,6 @@ export default function DeliveryDashboardPage() {
                         <CardDescription>Order ID: {order.id}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {/* Pickup Location */}
                         <div>
                             <h3 className="font-semibold mb-2">Pickup Location</h3>
                             <div className="flex items-start gap-4 p-4 rounded-md border">
@@ -115,7 +131,6 @@ export default function DeliveryDashboardPage() {
                             </div>
                         </div>
 
-                        {/* Delivery Location */}
                         <div>
                             <h3 className="font-semibold mb-2">Delivery Location</h3>
                             <div className="flex items-start gap-4 p-4 rounded-md border">
@@ -133,7 +148,6 @@ export default function DeliveryDashboardPage() {
                             </div>
                         </div>
                         
-                         {/* Customer Contact */}
                         <div>
                             <h3 className="font-semibold mb-2">Customer Contact</h3>
                             <div className="flex items-center gap-4 p-4 rounded-md border">
@@ -145,8 +159,6 @@ export default function DeliveryDashboardPage() {
                             </div>
                         </div>
 
-
-                        {/* Order Details */}
                         <div>
                             <h3 className="font-semibold mb-2">Order Items</h3>
                              <div className="p-4 rounded-md border space-y-2">
@@ -159,7 +171,6 @@ export default function DeliveryDashboardPage() {
                             </div>
                         </div>
                         
-                        {/* Map View */}
                         <div>
                              <h3 className="font-semibold mb-2">Map Overview</h3>
                             <div className="relative w-full h-96 rounded-md overflow-hidden border">
@@ -173,7 +184,6 @@ export default function DeliveryDashboardPage() {
                                 </iframe>
                             </div>
                         </div>
-
 
                         <div className="flex gap-4 pt-4">
                             <Button className="w-full" size="lg">Confirm Pickup</Button>
