@@ -21,23 +21,27 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    // Check if window is defined (i.e., we're on the client side)
-    if (typeof window !== 'undefined') {
-      try {
-        const localData = localStorage.getItem('cart');
-        return localData ? JSON.parse(localData) : [];
-      } catch (error) {
-        console.error("Error reading cart from localStorage", error);
-        return [];
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  
+  // Load cart from localStorage only on the client side
+  useEffect(() => {
+    try {
+      const localData = localStorage.getItem('cart');
+      if (localData) {
+        setCartItems(JSON.parse(localData));
       }
+    } catch (error) {
+      console.error("Error reading cart from localStorage", error);
     }
-    return [];
-  });
+  }, []);
+
 
   useEffect(() => {
     try {
-        localStorage.setItem('cart', JSON.stringify(cartItems));
+        // Avoid writing to localStorage on initial server render
+        if (cartItems.length > 0 || localStorage.getItem('cart') !== null) {
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+        }
     } catch (error) {
         console.error("Error saving cart to localStorage", error);
     }
