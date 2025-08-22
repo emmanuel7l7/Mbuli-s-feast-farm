@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Package, Navigation, Phone } from "lucide-react";
-import Image from "next/image";
 
 const dummyOrder = {
     id: "ORD-015",
@@ -44,6 +43,8 @@ export default function DeliveryDashboardPage() {
         // Render nothing or a loading spinner while checking auth
         return null;
     }
+
+    const mapSrc = `https://www.google.com/maps/embed/v1/directions?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&origin=${encodeURIComponent(dummyOrder.pickupAddress)}&destination=${encodeURIComponent(dummyOrder.deliveryAddress)}`;
 
 
     return (
@@ -131,20 +132,18 @@ export default function DeliveryDashboardPage() {
                             </div>
                         </div>
                         
-                        {/* Map View Placeholder */}
+                        {/* Map View */}
                         <div>
                              <h3 className="font-semibold mb-2">Map Overview</h3>
-                            <div className="relative w-full h-80 rounded-md overflow-hidden border">
-                                 <Image
-                                    src="https://placehold.co/800x400"
-                                    alt="Map placeholder"
-                                    layout="fill"
-                                    objectFit="cover"
-                                    data-ai-hint="map view"
-                                />
-                                <div className="absolute inset-0 bg-gray-900/20 flex items-center justify-center">
-                                    <p className="text-white bg-black/50 px-4 py-2 rounded-md">Map integration placeholder</p>
-                                </div>
+                            <div className="relative w-full h-96 rounded-md overflow-hidden border">
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    loading="lazy"
+                                    allowFullScreen
+                                    src={mapSrc}>
+                                </iframe>
                             </div>
                         </div>
 
