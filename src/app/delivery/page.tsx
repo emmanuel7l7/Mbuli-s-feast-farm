@@ -1,4 +1,8 @@
 
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Package, Navigation, Phone } from "lucide-react";
@@ -17,15 +21,43 @@ const dummyOrder = {
 }
 
 export default function DeliveryDashboardPage() {
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        // In a real app, you'd have a proper auth check.
+        // For now, we'll use localStorage to simulate a session.
+        const session = localStorage.getItem('delivery_auth');
+        if (session !== 'true') {
+            router.push('/delivery/login');
+        } else {
+            setIsAuthenticated(true);
+        }
+    }, [router]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('delivery_auth');
+        router.push('/delivery/login');
+    };
+    
+    if (!isAuthenticated) {
+        // Render nothing or a loading spinner while checking auth
+        return null;
+    }
+
+
     return (
         <div className="bg-gray-100 min-h-screen">
             <header className="bg-primary text-primary-foreground shadow-md">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <h1 className="text-xl font-bold">Delivery Dashboard</h1>
-                    <Button variant="ghost" size="icon">
-                        <Bell className="h-6 w-6" />
-                        <span className="sr-only">Notifications</span>
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon">
+                            <Bell className="h-6 w-6" />
+                            <span className="sr-only">Notifications</span>
+                        </Button>
+                         <Button variant="destructive" onClick={handleLogout}>Logout</Button>
+                    </div>
                 </div>
             </header>
             <main className="container mx-auto p-4 md:p-8">

@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Utensils, Leaf, Award } from 'lucide-react';
+import { Utensils, Leaf, Award, Truck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ProductCard } from '@/components/product-card';
@@ -145,6 +145,31 @@ export default function Home() {
               <Link href="/products">View All Products</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-24 border-t bg-secondary/50">
+        <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+                 <div>
+                    <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary">Join Our Delivery Team</h2>
+                    <p className="mt-4 text-lg text-foreground/80">
+                        Are you a reliable driver looking to earn with us? We're looking for delivery partners to help us bring fresh products to our customers' doors. Access your dashboard to manage deliveries.
+                    </p>
+                    <Button asChild size="lg" className="mt-8">
+                        <Link href="/delivery/login">Driver Login</Link>
+                    </Button>
+                </div>
+                <div className="relative w-full h-80 rounded-lg overflow-hidden shadow-xl">
+                   <Image
+                    src="https://placehold.co/600x400"
+                    alt="Delivery driver"
+                    layout="fill"
+                    objectFit="cover"
+                    data-ai-hint="delivery scooter"
+                  />
+                </div>
+            </div>
         </div>
       </section>
     </div>
