@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Chatbot } from '@/components/chatbot';
+import { CartProvider } from '@/hooks/use-cart';
 
 export const metadata: Metadata = {
   title: "Mbuli's Feast Farm",
@@ -32,13 +33,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex flex-col flex-1">
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </div>
-          <Chatbot />
-          <Toaster />
+          <CartProvider>
+            <div className="flex flex-col flex-1">
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </div>
+            <Chatbot />
+            <Toaster />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

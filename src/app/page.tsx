@@ -29,6 +29,15 @@ const allProducts: Product[] = [
   },
   {
     id: '3',
+    name: 'Chicken Breast (1kg)',
+    description: 'Lean and versatile boneless, skinless chicken breast. A healthy choice for any meal.',
+    price: 20000,
+    image: 'https://placehold.co/600x400',
+    aiHint: 'chicken breast',
+    stockStatus: 'in-stock',
+  },
+  {
+    id: '4',
     name: 'Chicken Wings (1kg)',
     description: 'Perfectly portioned wings, ready for your favorite sauce.',
     price: 12000,
@@ -38,8 +47,8 @@ const allProducts: Product[] = [
   },
 ];
 
-// Filter out "out-of-stock" products before rendering
-const featuredProducts = allProducts.filter(p => p.stockStatus !== 'out-of-stock');
+// Filter out "out-of-stock" products for the featured section
+const featuredProducts = allProducts.filter(p => p.stockStatus !== 'out-of-stock').slice(0, 3);
 
 export default function Home() {
   return (

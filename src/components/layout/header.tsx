@@ -6,6 +6,7 @@ import ChickenIcon from "../icons/chicken-icon";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Menu } from "lucide-react";
+import { CartButton } from "../cart-button";
 
 const navLinks = [
     { href: "/products", label: "Our Products" },
@@ -68,6 +69,7 @@ export function Header() {
 
 
                 <div className="flex flex-1 items-center justify-end space-x-2">
+                    <CartButton />
                     <LanguageToggle />
                     <ThemeToggle />
                     <Button asChild>

@@ -60,9 +60,6 @@ const allProducts: Product[] = [
   },
 ];
 
-// Filter out "out-of-stock" products before rendering
-const products = allProducts.filter(p => p.stockStatus !== 'out-of-stock');
-
 export default function ProductsPage() {
   return (
     <div className="container mx-auto px-4 py-12">
@@ -73,7 +70,7 @@ export default function ProductsPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products.map((product) => (
+        {allProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
