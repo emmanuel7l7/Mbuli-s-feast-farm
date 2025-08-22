@@ -25,6 +25,9 @@ export default function AdminLoginPage() {
   const handleLogin = () => {
     // Dummy credentials
     if (email === 'admin@example.com' && password === 'password') {
+      // In a real app, you would set a secure session cookie.
+      // We'll use localStorage for this prototype.
+      localStorage.setItem('admin_auth', 'true');
       router.push('/admin');
     } else {
       toast({

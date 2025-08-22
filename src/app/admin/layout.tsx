@@ -1,7 +1,8 @@
 
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function AdminLayout({
   children,
@@ -9,8 +10,31 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // The admin login page should not have the dashboard layout
+  useEffect(() => {
+    // The admin login page should not have the dashboard layout or auth check
+    if (pathname === '/admin/login') {
+      setIsAuthenticated(true); // Allow login page to render
+      return;
+    }
+
+    // In a real app, you'd have a proper auth check.
+    // For this prototype, we'll use localStorage to simulate a session.
+    const session = localStorage.getItem('admin_auth');
+    if (session !== 'true') {
+      router.push('/admin/login');
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [pathname, router]);
+
+  // Render nothing or a loading spinner while checking auth
+  if (!isAuthenticated) {
+    return null;
+  }
+  
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
