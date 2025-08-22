@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast";
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -83,13 +82,10 @@ export default function CheckoutPage() {
                     <CardTitle className="text-2xl">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+                    <div className="space-y-2">
                     {cartItems.map(item => (
                         <div key={item.id} className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="relative w-12 h-12 rounded-md overflow-hidden">
-                                     <Image src={item.image} alt={item.name} layout="fill" objectFit="cover" />
-                                </div>
                                 <div>
                                     <p className="font-semibold">{item.name}</p>
                                     <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
