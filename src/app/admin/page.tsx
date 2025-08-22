@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { DollarSign, Users, Package, LineChart } from 'lucide-react';
+import { DollarSign, Users, Package, LineChart, MessageSquare, List, UserCog } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -73,7 +73,9 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Stock Management</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <List className="h-4 w-4" /> Stock Management
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
@@ -86,7 +88,9 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Bulk SMS</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" /> Bulk SMS
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
@@ -99,7 +103,9 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">USSD Users</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Users className="h-4 w-4" /> USSD Users
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
@@ -107,6 +113,21 @@ export default function AdminDashboard() {
             </p>
             <Button asChild>
               <Link href="/admin/ussd">Manage USSD Users</Link>
+            </Button>
+          </CardContent>
+        </Card>
+         <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <UserCog className="h-4 w-4" /> User Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Manage all user accounts and roles.
+            </p>
+            <Button asChild>
+              <Link href="/admin/users">Manage Users</Link>
             </Button>
           </CardContent>
         </Card>

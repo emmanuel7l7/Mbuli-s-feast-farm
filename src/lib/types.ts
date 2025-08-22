@@ -17,3 +17,12 @@ export interface Store {
   image: string;
   aiHint: string;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: 'Admin' | 'Customer' | 'Delivery';
+  status: 'active' | 'suspended';
+}
