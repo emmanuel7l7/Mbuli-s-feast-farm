@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -7,7 +8,7 @@ import Link from 'next/link';
 import { ProductCard } from '@/components/product-card';
 import type { Product } from '@/lib/types';
 
-const featuredProducts: Product[] = [
+const allProducts: Product[] = [
   {
     id: '1',
     name: 'Whole Chicken',
@@ -15,6 +16,7 @@ const featuredProducts: Product[] = [
     price: 15000,
     image: 'https://placehold.co/600x400',
     aiHint: 'whole chicken',
+    stockStatus: 'in-stock',
   },
   {
     id: '2',
@@ -23,6 +25,7 @@ const featuredProducts: Product[] = [
     price: 18000,
     image: 'https://placehold.co/600x400',
     aiHint: 'chicken thighs',
+    stockStatus: 'in-stock',
   },
   {
     id: '3',
@@ -31,8 +34,12 @@ const featuredProducts: Product[] = [
     price: 12000,
     image: 'https://placehold.co/600x400',
     aiHint: 'chicken wings',
+    stockStatus: 'out-of-stock',
   },
 ];
+
+// Filter out "out-of-stock" products before rendering
+const featuredProducts = allProducts.filter(p => p.stockStatus !== 'out-of-stock');
 
 export default function Home() {
   return (

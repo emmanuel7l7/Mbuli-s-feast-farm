@@ -21,24 +21,40 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PlusCircle, Edit } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { PlusCircle, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 type Product = {
   id: string;
   name: string;
+  description: string;
+  price: number;
   stock: number;
+  image: string;
   status: "in-stock" | "low-stock" | "out-of-stock";
 };
 
 const initialProducts: Product[] = [
-  { id: "PROD-001", name: "Whole Chicken", stock: 120, status: "in-stock" },
-  { id: "PROD-002", name: "Chicken Thighs (1kg)", stock: 80, status: "in-stock" },
-  { id: "PROD-003", name: "Chicken Wings (1kg)", stock: 0, status: "out-of-stock" },
-  { id: "PROD-004", name: "Chicken Breast (1kg)", stock: 150, status: "in-stock" },
-  { id: "PROD-005", name: "Chicken Drumsticks (1kg)", stock: 30, status: "low-stock" },
+  { id: "PROD-001", name: "Whole Chicken", description: "Fresh, farm-raised whole chicken. Perfect for roasting. Approx. 1.5kg.", price: 15000, stock: 120, image: "https://placehold.co/600x400", status: "in-stock" },
+  { id: "PROD-002", name: "Chicken Thighs (1kg)", description: "Juicy and tender chicken thighs, bone-in and skin-on. Ideal for grilling or stewing.", price: 18000, stock: 80, image: "https://placehold.co/600x400", status: "in-stock" },
+  { id: "PROD-003", name: "Chicken Wings (1kg)", description: "Perfectly portioned wings, ready for your favorite sauce. Great for parties.", price: 12000, stock: 0, image: "https://placehold.co/600x400", status: "out-of-stock" },
+  { id: "PROD-004", name: "Chicken Breast (1kg)", description: "Lean and versatile boneless, skinless chicken breast. A healthy choice for any meal.", price: 20000, stock: 150, image: "https://placehold.co/600x400", status: "in-stock" },
+  { id: "PROD-005", name: "Chicken Drumsticks (1kg)", description: "A family favorite, these drumsticks are meaty and flavorful. Perfect for frying or baking.", price: 16000, stock: 30, image: "https://placehold.co/600x400", status: "low-stock" },
 ];
 
 const getStatus = (stock: number): Product['status'] => {
@@ -51,63 +67,102 @@ export default function StockManagementPage() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [newProductName, setNewProductName] = useState("");
-  const [newProductStock, setNewProductStock] = useState("");
+  
+  const [productForm, setProductForm] = useState({
+      name: "",
+      description: "",
+      price: "",
+      stock: "",
+      image: "",
+  });
+
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { toast } = useToast();
 
-  const handleAddProduct = () => {
-    if (!newProductName || !newProductStock) {
-        toast({ title: "Error", description: "Please fill in all fields.", variant: "destructive" });
-        return;
-    }
-    const stock = parseInt(newProductStock, 10);
-    if (isNaN(stock) || stock < 0) {
-        toast({ title: "Error", description: "Please enter a valid stock number.", variant: "destructive" });
-        return;
-    }
+  const resetForm = () => {
+      setProductForm({ name: "", description: "", price: "", stock: "", image: "" });
+  };
 
+  const validateForm = () => {
+    if (!productForm.name || !productForm.price || !productForm.stock || !productForm.description) {
+        toast({ title: "Error", description: "Please fill in all required fields.", variant: "destructive" });
+        return false;
+    }
+    const stock = parseInt(productForm.stock, 10);
+    const price = parseFloat(productForm.price);
+    if (isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
+        toast({ title: "Error", description: "Please enter a valid stock and price.", variant: "destructive" });
+        return false;
+    }
+    return true;
+  };
+  
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { id, value } = e.target;
+      setProductForm(prev => ({...prev, [id]: value}));
+  };
+
+  const handleAddProduct = () => {
+    if (!validateForm()) return;
+    
+    const stock = parseInt(productForm.stock, 10);
     const newProduct: Product = {
         id: `PROD-${String(products.length + 1).padStart(3, '0')}`,
-        name: newProductName,
+        name: productForm.name,
+        description: productForm.description,
+        price: parseFloat(productForm.price),
         stock: stock,
         status: getStatus(stock),
+        image: productForm.image || 'https://placehold.co/600x400',
     };
     setProducts([...products, newProduct]);
     setIsAddDialogOpen(false);
-    setNewProductName("");
-    setNewProductStock("");
+    resetForm();
     toast({ title: "Success", description: "Product added successfully." });
   };
   
   const handleEditProduct = () => {
-    if (!editingProduct || !newProductName || !newProductStock) {
-      toast({ title: "Error", description: "Please fill in all fields.", variant: "destructive" });
-      return;
-    }
-     const stock = parseInt(newProductStock, 10);
-    if (isNaN(stock) || stock < 0) {
-        toast({ title: "Error", description: "Please enter a valid stock number.", variant: "destructive" });
-        return;
-    }
-
+    if (!editingProduct || !validateForm()) return;
+   
+    const stock = parseInt(productForm.stock, 10);
     setProducts(products.map(p => 
       p.id === editingProduct.id 
-        ? { ...p, name: newProductName, stock: stock, status: getStatus(stock) } 
+        ? { ...p, 
+            name: productForm.name, 
+            description: productForm.description,
+            price: parseFloat(productForm.price),
+            stock: stock, 
+            status: getStatus(stock),
+            image: productForm.image || 'https://placehold.co/600x400',
+           } 
         : p
     ));
     setIsEditDialogOpen(false);
     setEditingProduct(null);
-    setNewProductName("");
-    setNewProductStock("");
+    resetForm();
     toast({ title: "Success", description: "Product updated successfully." });
   };
+  
+  const handleDeleteProduct = (productId: string) => {
+    setProducts(products.filter(p => p.id !== productId));
+    toast({ title: "Success", description: "Product deleted successfully." });
+  }
 
   const openEditDialog = (product: Product) => {
     setEditingProduct(product);
-    setNewProductName(product.name);
-    setNewProductStock(String(product.stock));
+    setProductForm({
+        name: product.name,
+        description: product.description,
+        price: String(product.price),
+        stock: String(product.stock),
+        image: product.image,
+    });
     setIsEditDialogOpen(true);
+  };
+  
+  const openAddDialog = () => {
+      resetForm();
+      setIsAddDialogOpen(true);
   };
 
 
@@ -116,7 +171,7 @@ export default function StockManagementPage() {
       <div className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Stock Management</h2>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Button onClick={openAddDialog}>
             <PlusCircle className="mr-2 h-4 w-4" /> Add Product
           </Button>
         </div>
@@ -130,9 +185,10 @@ export default function StockManagementPage() {
                 <TableRow>
                   <TableHead>Product ID</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Stock Level</TableHead>
+                  <TableHead className="text-right">Price (TZS)</TableHead>
+                  <TableHead className="text-right">Stock</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -140,7 +196,8 @@ export default function StockManagementPage() {
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">{product.id}</TableCell>
                     <TableCell>{product.name}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
+                    <TableCell className="text-right">{product.price.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{product.stock}</TableCell>
                     <TableCell>
                       <Badge variant={
                         product.status === "in-stock" ? "default" :
@@ -149,10 +206,33 @@ export default function StockManagementPage() {
                         {product.status.replace("-", " ")}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm" onClick={() => openEditDialog(product)}>
-                        <Edit className="mr-2 h-4 w-4" /> Edit
-                      </Button>
+                    <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => openEditDialog(product)}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit
+                          </Button>
+                           <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="sm">
+                                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete the product.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                                        Continue
+                                    </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -162,52 +242,46 @@ export default function StockManagementPage() {
         </Card>
       </div>
 
-      {/* Add Product Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent>
+      {/* Add/Edit Product Dialog */}
+      <Dialog open={isAddDialogOpen || isEditDialogOpen} onOpenChange={isEditDialogOpen ? setIsEditDialogOpen : setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Add New Product</DialogTitle>
+            <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Name</Label>
-              <Input id="name" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} className="col-span-3" />
+              <Input id="name" value={productForm.name} onChange={handleFormChange} className="col-span-3" />
+            </div>
+             <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="description" className="text-right pt-2">Description</Label>
+              <Textarea id="description" value={productForm.description} onChange={handleFormChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="price" className="text-right">Price</Label>
+              <Input id="price" type="number" value={productForm.price} onChange={handleFormChange} className="col-span-3" placeholder="e.g., 15000" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="stock" className="text-right">Stock</Label>
-              <Input id="stock" type="number" value={newProductStock} onChange={(e) => setNewProductStock(e.target.value)} className="col-span-3" />
+              <Input id="stock" type="number" value={productForm.stock} onChange={handleFormChange} className="col-span-3" placeholder="e.g., 100" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="image" className="text-right">Image URL</Label>
+              <Input id="image" value={productForm.image} onChange={handleFormChange} className="col-span-3" placeholder="https://..."/>
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" onClick={() => {
+                    setIsAddDialogOpen(false);
+                    setIsEditDialogOpen(false);
+                    setEditingProduct(null);
+                    resetForm();
+                }}>Cancel</Button>
             </DialogClose>
-            <Button onClick={handleAddProduct}>Add Product</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Edit Product Dialog */}
-       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-name" className="text-right">Name</Label>
-              <Input id="edit-name" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="edit-stock" className="text-right">Stock</Label>
-              <Input id="edit-stock" type="number" value={newProductStock} onChange={(e) => setNewProductStock(e.target.value)} className="col-span-3" />
-            </div>
-          </div>
-          <DialogFooter>
-             <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button onClick={handleEditProduct}>Save Changes</Button>
+            <Button onClick={editingProduct ? handleEditProduct : handleAddProduct}>
+                {editingProduct ? "Save Changes" : "Add Product"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

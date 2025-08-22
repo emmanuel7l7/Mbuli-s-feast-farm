@@ -1,7 +1,9 @@
+
 import { ProductCard } from "@/components/product-card";
 import type { Product } from "@/lib/types";
 
-const products: Product[] = [
+// This would typically come from a database or API
+const allProducts: Product[] = [
   {
     id: '1',
     name: 'Whole Chicken',
@@ -9,6 +11,7 @@ const products: Product[] = [
     price: 15000,
     image: 'https://placehold.co/600x400',
     aiHint: 'whole chicken',
+    stockStatus: 'in-stock',
   },
   {
     id: '2',
@@ -17,6 +20,7 @@ const products: Product[] = [
     price: 18000,
     image: 'https://placehold.co/600x400',
     aiHint: 'chicken thighs',
+    stockStatus: 'in-stock',
   },
   {
     id: '3',
@@ -25,6 +29,7 @@ const products: Product[] = [
     price: 12000,
     image: 'https://placehold.co/600x400',
     aiHint: 'chicken wings',
+    stockStatus: 'out-of-stock',
   },
   {
     id: '4',
@@ -33,6 +38,7 @@ const products: Product[] = [
     price: 20000,
     image: 'https://placehold.co/600x400',
     aiHint: 'chicken breast',
+    stockStatus: 'in-stock',
   },
   {
     id: '5',
@@ -41,6 +47,7 @@ const products: Product[] = [
     price: 16000,
     image: 'https://placehold.co/600x400',
     aiHint: 'chicken drumsticks',
+    stockStatus: 'low-stock',
   },
   {
     id: '6',
@@ -49,8 +56,12 @@ const products: Product[] = [
     price: 9000,
     image: 'https://placehold.co/600x400',
     aiHint: 'ground chicken',
+    stockStatus: 'in-stock',
   },
 ];
+
+// Filter out "out-of-stock" products before rendering
+const products = allProducts.filter(p => p.stockStatus !== 'out-of-stock');
 
 export default function ProductsPage() {
   return (
