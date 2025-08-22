@@ -11,7 +11,6 @@ const navLinks = [
     { href: "/products", label: "Our Products" },
     { href: "/stores", label: "Find Us" },
     { href: "/admin", label: "Admin" },
-    { href: "/delivery", label: "Delivery" },
 ];
 
 export function Header() {
