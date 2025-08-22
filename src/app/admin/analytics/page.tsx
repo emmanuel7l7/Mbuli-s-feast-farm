@@ -74,23 +74,27 @@ export default function AnalyticsPage() {
     // Check localStorage for recently placed orders and prepend them
     const storedOrdersData = localStorage.getItem('recent_orders');
     if (storedOrdersData) {
-      const storedOrders = JSON.parse(storedOrdersData);
-      
-      // Adapt saved order format to the one used on this page
-      const formattedStoredOrders: Order[] = storedOrders.map((o: any) => ({
-        id: o.id,
-        customer: o.customer,
-        date: o.date,
-        amount: o.total,
-        status: o.status
-      }));
+      try {
+        const storedOrders = JSON.parse(storedOrdersData);
+        
+        // Adapt saved order format to the one used on this page
+        const formattedStoredOrders: Order[] = storedOrders.map((o: any) => ({
+          id: o.id,
+          customer: o.customer,
+          date: o.date,
+          amount: o.total,
+          status: o.status
+        }));
 
-      // Avoid duplicates and merge with initial data
-      const combined = [...formattedStoredOrders, ...initialRecentOrders];
-      const uniqueOrders = Array.from(new Set(combined.map(o => o.id)))
-                                .map(id => combined.find(o => o.id === id)!);
+        // Avoid duplicates and merge with initial data
+        const combined = [...formattedStoredOrders, ...initialRecentOrders];
+        const uniqueOrders = Array.from(new Set(combined.map(o => o.id)))
+                                  .map(id => combined.find(o => o.id === id)!);
 
-      setRecentOrders(uniqueOrders.slice(0, 5)); // show latest 5
+        setRecentOrders(uniqueOrders.slice(0, 5)); // show latest 5
+      } catch (error) {
+          console.error("Failed to parse recent orders from localStorage", error);
+      }
     }
   }, []);
 
