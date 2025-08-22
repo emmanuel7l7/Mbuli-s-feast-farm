@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   Card,
   CardContent,
@@ -6,11 +8,36 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { DollarSign, Users, Package, LineChart, MessageSquare, List, UserCog } from 'lucide-react';
+import { DollarSign, Users, Package, LineChart, MessageSquare, List, UserCog, Clock, MapPin, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { Separator } from '@/components/ui/separator';
+
+type LatestOrder = {
+  id: string;
+  customer: string;
+  phone: string;
+  deliveryAddress: string;
+  total: number;
+  deliveryFee: number;
+  date: string;
+}
 
 export default function AdminDashboard() {
+  const [latestOrder, setLatestOrder] = useState<LatestOrder | null>(null);
+
+  useEffect(() => {
+    const storedOrder = localStorage.getItem('latest_order');
+    if (storedOrder) {
+      try {
+        setLatestOrder(JSON.parse(storedOrder));
+      } catch (e) {
+        console.error("Failed to parse latest order from localStorage", e);
+      }
+    }
+  }, []);
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -70,6 +97,44 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {latestOrder && (
+          <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+              <CardHeader>
+                  <CardTitle>Latest Customer Order</CardTitle>
+                  <CardDescription>
+                      Order ID: {latestOrder.id} - Placed on: {new Date(latestOrder.date).toLocaleDateString()}
+                  </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  <div className="flex items-center gap-4">
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold">{latestOrder.customer}</span>
+                  </div>
+                   <div className="flex items-center gap-4">
+                      <Phone className="h-5 w-5 text-muted-foreground" />
+                      <span>{latestOrder.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                      <MapPin className="h-5 w-5 text-muted-foreground" />
+                      <span>{latestOrder.deliveryAddress}</span>
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                          <p className="text-muted-foreground">Delivery Fee</p>
+                          <p className="font-semibold">{latestOrder.deliveryFee.toLocaleString()} TZS</p>
+                      </div>
+                       <div>
+                          <p className="text-muted-foreground">Total Collected</p>
+                          <p className="font-semibold">{latestOrder.total.toLocaleString()} TZS</p>
+                      </div>
+                  </div>
+              </CardContent>
+          </Card>
+      )}
+
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
