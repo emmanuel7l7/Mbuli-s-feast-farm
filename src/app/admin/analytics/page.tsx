@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -39,7 +40,7 @@ const salesData = [
   { name: 'Jun', sales: 5500 },
 ];
 
-const recentOrders = [
+const initialRecentOrders = [
   { id: 'ORD-012', customer: 'John Doe', date: '2023-10-26', amount: 45000, status: 'Completed' },
   { id: 'ORD-011', customer: 'Jane Smith', date: '2023-10-25', amount: 36000, status: 'Completed' },
   { id: 'ORD-010', customer: 'Sam Wilson', date: '2023-10-25', amount: 20000, status: 'Processing' },
@@ -58,7 +59,42 @@ const leastProducts = [
     { name: 'Chicken Drumsticks (1kg)', sales: 310 },
 ];
 
+type Order = {
+  id: string;
+  customer: string;
+  date: string;
+  amount: number;
+  status: string;
+}
+
 export default function AnalyticsPage() {
+  const [recentOrders, setRecentOrders] = useState<Order[]>(initialRecentOrders);
+
+  useEffect(() => {
+    // Check localStorage for recently placed orders and prepend them
+    const storedOrdersData = localStorage.getItem('recent_orders');
+    if (storedOrdersData) {
+      const storedOrders = JSON.parse(storedOrdersData);
+      
+      // Adapt saved order format to the one used on this page
+      const formattedStoredOrders: Order[] = storedOrders.map((o: any) => ({
+        id: o.id,
+        customer: o.customer,
+        date: o.date,
+        amount: o.total,
+        status: o.status
+      }));
+
+      // Avoid duplicates and merge with initial data
+      const combined = [...formattedStoredOrders, ...initialRecentOrders];
+      const uniqueOrders = Array.from(new Set(combined.map(o => o.id)))
+                                .map(id => combined.find(o => o.id === id)!);
+
+      setRecentOrders(uniqueOrders.slice(0, 5)); // show latest 5
+    }
+  }, []);
+
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -161,7 +197,7 @@ export default function AnalyticsPage() {
             <CardHeader>
                 <CardTitle>Top Selling Products</CardTitle>
                 <CardDescription>Your best-performing products this month.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent>
                  <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={topProducts} layout="vertical">
@@ -177,7 +213,7 @@ export default function AnalyticsPage() {
             <CardHeader>
                 <CardTitle>Least Selling Products</CardTitle>
                 <CardDescription>Products that are underperforming this month.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={leastProducts} layout="vertical">

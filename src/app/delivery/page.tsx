@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Package, Navigation, Phone } from "lucide-react";
+import { Bell, MapPin, Package, Navigation, Phone, Loader2 } from "lucide-react";
 
-const dummyOrder = {
+const initialOrder = {
     id: "ORD-015",
     customer: "Sam Doe",
     pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam",
@@ -17,35 +17,62 @@ const dummyOrder = {
         { name: "Whole Chicken", quantity: 2 },
         { name: "Chicken Thighs (1kg)", quantity: 1 },
     ]
-}
+};
+
+type Order = typeof initialOrder;
 
 export default function DeliveryDashboardPage() {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [order, setOrder] = useState<Order | null>(null);
+    const [mapSrc, setMapSrc] = useState('');
 
     useEffect(() => {
-        // In a real app, you'd have a proper auth check.
-        // For now, we'll use localStorage to simulate a session.
         const session = localStorage.getItem('delivery_auth');
         if (session !== 'true') {
             router.push('/delivery/login');
         } else {
             setIsAuthenticated(true);
+            
+            // Check for the latest order from localStorage
+            const latestOrderData = localStorage.getItem('latest_order');
+            if (latestOrderData) {
+                const latestOrder = JSON.parse(latestOrderData);
+                // Adapt the saved order format to the component's expected format
+                const formattedOrder = {
+                    id: latestOrder.id,
+                    customer: latestOrder.customer,
+                    pickupAddress: "Mbuli's Feast Farm, Mbezi Beach, Dar es Salaam",
+                    deliveryAddress: latestOrder.deliveryAddress,
+                    customerPhone: latestOrder.phone,
+                    items: latestOrder.items
+                };
+                setOrder(formattedOrder);
+            } else {
+                setOrder(initialOrder); // Fallback to initial dummy data
+            }
         }
     }, [router]);
+
+    useEffect(() => {
+        if (order) {
+            const newMapSrc = `https://www.google.com/maps/embed/v1/directions?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&origin=${encodeURIComponent(order.pickupAddress)}&destination=${encodeURIComponent(order.deliveryAddress)}`;
+            setMapSrc(newMapSrc);
+        }
+    }, [order]);
 
     const handleLogout = () => {
         localStorage.removeItem('delivery_auth');
         router.push('/delivery/login');
     };
     
-    if (!isAuthenticated) {
-        // Render nothing or a loading spinner while checking auth
-        return null;
+    if (!isAuthenticated || !order) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        );
     }
-
-    const mapSrc = `https://www.google.com/maps/embed/v1/directions?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&origin=${encodeURIComponent(dummyOrder.pickupAddress)}&destination=${encodeURIComponent(dummyOrder.deliveryAddress)}`;
-
 
     return (
         <div className="bg-gray-100 min-h-screen">
@@ -67,7 +94,7 @@ export default function DeliveryDashboardPage() {
                         <CardTitle className="flex items-center gap-2">
                            <Package className="h-6 w-6" /> Current Delivery Task
                         </CardTitle>
-                        <CardDescription>Order ID: {dummyOrder.id}</CardDescription>
+                        <CardDescription>Order ID: {order.id}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Pickup Location */}
@@ -77,10 +104,10 @@ export default function DeliveryDashboardPage() {
                                 <MapPin className="h-8 w-8 text-red-500 mt-1" />
                                 <div>
                                     <p className="font-bold">Mbuli's Feast Farm</p>
-                                    <p className="text-muted-foreground">{dummyOrder.pickupAddress}</p>
+                                    <p className="text-muted-foreground">{order.pickupAddress}</p>
                                 </div>
                                 <Button asChild size="sm" className="ml-auto">
-                                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dummyOrder.pickupAddress)}`} target="_blank" rel="noopener noreferrer">
+                                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.pickupAddress)}`} target="_blank" rel="noopener noreferrer">
                                         <Navigation className="mr-2 h-4 w-4"/>
                                         Navigate
                                     </a>
@@ -94,11 +121,11 @@ export default function DeliveryDashboardPage() {
                             <div className="flex items-start gap-4 p-4 rounded-md border">
                                 <MapPin className="h-8 w-8 text-green-500 mt-1" />
                                 <div>
-                                    <p className="font-bold">{dummyOrder.customer}</p>
-                                    <p className="text-muted-foreground">{dummyOrder.deliveryAddress}</p>
+                                    <p className="font-bold">{order.customer}</p>
+                                    <p className="text-muted-foreground">{order.deliveryAddress}</p>
                                 </div>
                                  <Button asChild size="sm" className="ml-auto">
-                                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dummyOrder.deliveryAddress)}`} target="_blank" rel="noopener noreferrer">
+                                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.deliveryAddress)}`} target="_blank" rel="noopener noreferrer">
                                         <Navigation className="mr-2 h-4 w-4"/>
                                         Navigate
                                     </a>
@@ -111,9 +138,9 @@ export default function DeliveryDashboardPage() {
                             <h3 className="font-semibold mb-2">Customer Contact</h3>
                             <div className="flex items-center gap-4 p-4 rounded-md border">
                                  <Phone className="h-5 w-5 text-primary" />
-                                <p className="text-muted-foreground">{dummyOrder.customerPhone}</p>
+                                <p className="text-muted-foreground">{order.customerPhone}</p>
                                 <Button asChild variant="outline" size="sm" className="ml-auto">
-                                    <a href={`tel:${dummyOrder.customerPhone}`}>Call Customer</a>
+                                    <a href={`tel:${order.customerPhone}`}>Call Customer</a>
                                 </Button>
                             </div>
                         </div>
@@ -123,7 +150,7 @@ export default function DeliveryDashboardPage() {
                         <div>
                             <h3 className="font-semibold mb-2">Order Items</h3>
                              <div className="p-4 rounded-md border space-y-2">
-                                {dummyOrder.items.map(item => (
+                                {order.items.map(item => (
                                     <div key={item.name} className="flex justify-between">
                                         <span>{item.name}</span>
                                         <span className="font-medium">x {item.quantity}</span>

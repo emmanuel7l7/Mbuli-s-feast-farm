@@ -20,6 +20,8 @@ export default function CheckoutPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
@@ -76,13 +78,34 @@ export default function CheckoutPage() {
     if (!deliveryAddress || deliveryFee === null) {
       toast({
         title: "Error",
-        description: "Please enter a valid delivery address to calculate the fee.",
+        description: "Please enter your name, phone and a valid delivery address.",
         variant: "destructive",
       });
       return;
     }
-    // In a real application, this would trigger payment processing
-    // and send the order to a backend.
+
+    const orderDetails = {
+      id: `ORD-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      customer: customerName || 'N/A',
+      phone: customerPhone,
+      deliveryAddress: deliveryAddress,
+      items: cartItems.map(item => ({ name: item.name, quantity: item.quantity })),
+      subtotal: cartTotal,
+      deliveryFee: deliveryFee,
+      total: finalTotal,
+      date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+      status: 'Processing',
+    };
+
+    // Save order to localStorage to be picked up by admin and delivery pages
+    localStorage.setItem('latest_order', JSON.stringify(orderDetails));
+
+    // Also, prepend to a list of recent orders for the admin analytics page
+    const recentOrders = JSON.parse(localStorage.getItem('recent_orders') || '[]');
+    const updatedRecentOrders = [orderDetails, ...recentOrders].slice(0, 5); // Keep last 5
+    localStorage.setItem('recent_orders', JSON.stringify(updatedRecentOrders));
+
+
     toast({
         title: "Order Placed!",
         description: "Thank you for your purchase. We will contact you shortly to confirm."
@@ -95,7 +118,7 @@ export default function CheckoutPage() {
     }, 2000);
   };
   
-  if (cartCount === 0) {
+  if (cartCount === 0 && !router) { // Wait for router to be available to avoid flash of content
      return (
         <div className="container mx-auto px-4 py-12 text-center">
             <h1 className="text-4xl font-headline font-bold text-primary mb-4">Checkout</h1>
@@ -121,11 +144,11 @@ export default function CheckoutPage() {
                     <CardContent className="space-y-4">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" placeholder="John Doe" />
+                            <Input id="name" placeholder="John Doe" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
                         </div>
                          <div className="grid gap-2">
                             <Label htmlFor="phone">Phone Number</Label>
-                            <Input id="phone" type="tel" placeholder="+255 712 345 678" />
+                            <Input id="phone" type="tel" placeholder="+255 712 345 678" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)}/>
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="address">Delivery Address</Label>
@@ -198,7 +221,7 @@ export default function CheckoutPage() {
                         <p>Total</p>
                         <p>{finalTotal.toLocaleString()} TZS</p>
                     </div>
-                    <Button size="lg" className="w-full mt-4" onClick={handlePlaceOrder} disabled={!deliveryAddress || deliveryFee === null || isCalculatingFee}>
+                    <Button size="lg" className="w-full mt-4" onClick={handlePlaceOrder} disabled={!deliveryAddress || deliveryFee === null || isCalculatingFee || !customerName || !customerPhone}>
                         Place Order & Pay on Delivery
                     </Button>
                      <p className="text-xs text-muted-foreground text-center">
