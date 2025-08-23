@@ -173,16 +173,18 @@ export default function DeliveryDashboardPage() {
                         
                         <div>
                              <h3 className="font-semibold mb-2">Map Overview</h3>
-                            <div className="relative w-full h-96 rounded-md overflow-hidden border">
-                                <iframe
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0 }}
-                                    loading="lazy"
-                                    allowFullScreen
-                                    src={mapSrc}>
-                                </iframe>
-                            </div>
+                            {mapSrc ? (
+                              <div className="relative w-full h-96 rounded-md overflow-hidden border">
+                                  <iframe
+                                      width="100%"
+                                      height="100%"
+                                      style={{ border: 0 }}
+                                      loading="lazy"
+                                      allowFullScreen
+                                      src={mapSrc}
+                                  />
+                              </div>
+                            ) : null}
                         </div>
 
                         <div className="flex gap-4 pt-4">

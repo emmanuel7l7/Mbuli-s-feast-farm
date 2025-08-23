@@ -43,7 +43,7 @@ export function Footer() {
                         <HaloPesaIcon className="h-8 w-8" />
                     </div>
                     <div>
-                        <a href="https://wa.me/255712345678" // Placeholder number
+                        <a href="https://wa.me/255746283053" // Placeholder number
                            target="_blank"
                            rel="noopener noreferrer"
                            className="inline-flex items-center text-sm font-medium hover:text-primary transition-colors">
