@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  image: string;
+  // image: string;
   stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock';
   createdAt?: Date;
 }
@@ -13,7 +13,7 @@ export interface Store {
   name: string;
   address: string;
   hours: string;
-  image: string;
+  // image: string;
 }
 
 export interface CartItem extends Product {

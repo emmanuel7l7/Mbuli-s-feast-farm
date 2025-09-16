@@ -1,6 +1,5 @@
 'use client';
 
-import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import type { Product } from "@/lib/types";
@@ -35,12 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <Card className="flex flex-col overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-xl">
             <CardHeader className="p-0">
                 <div className="relative w-full h-56">
-                    <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                    />
+                    {/* Image removed */}
                      {product.stockStatus === 'low-stock' && (
                         <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">LOW STOCK</div>
                     )}

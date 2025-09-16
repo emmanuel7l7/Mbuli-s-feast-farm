@@ -5,7 +5,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  image: string;
+  // image: string;
   stockStatus: 'in-stock' | 'low-stock' | 'out-of-stock';
   createdAt?: Date;
 }
@@ -62,7 +62,7 @@ export const initializeDatabase = async () => {
         name: 'Whole Chicken',
         description: 'Fresh, farm-raised whole chicken. Perfect for roasting. Approx. 1.5kg.',
         price: 15000,
-        image: 'https://images.pexels.com/photos/616354/pexels-photo-616354.jpeg',
+  // image: '',
         stockStatus: 'in-stock',
         createdAt: new Date()
       },
@@ -70,7 +70,7 @@ export const initializeDatabase = async () => {
         name: 'Chicken Thighs (1kg)',
         description: 'Juicy and tender chicken thighs, bone-in and skin-on. Ideal for grilling or stewing.',
         price: 18000,
-        image: 'https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg',
+  // image: '',
         stockStatus: 'in-stock',
         createdAt: new Date()
       },
@@ -78,7 +78,7 @@ export const initializeDatabase = async () => {
         name: 'Chicken Wings (1kg)',
         description: 'Perfectly portioned wings, ready for your favorite sauce. Great for parties.',
         price: 12000,
-        image: 'https://images.pexels.com/photos/60616/fried-chicken-chicken-fried-crunchy-60616.jpeg',
+  // image: '',
         stockStatus: 'out-of-stock',
         createdAt: new Date()
       },
@@ -86,7 +86,7 @@ export const initializeDatabase = async () => {
         name: 'Chicken Breast (1kg)',
         description: 'Lean and versatile boneless, skinless chicken breast. A healthy choice for any meal.',
         price: 20000,
-        image: 'https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg',
+  // image removed
         stockStatus: 'in-stock',
         createdAt: new Date()
       },
@@ -94,7 +94,7 @@ export const initializeDatabase = async () => {
         name: 'Chicken Drumsticks (1kg)',
         description: 'A family favorite, these drumsticks are meaty and flavorful. Perfect for frying or baking.',
         price: 16000,
-        image: 'https://images.pexels.com/photos/616354/pexels-photo-616354.jpeg',
+  // image removed
         stockStatus: 'low-stock',
         createdAt: new Date()
       },
@@ -102,7 +102,7 @@ export const initializeDatabase = async () => {
         name: 'Ground Chicken (500g)',
         description: 'Lean ground chicken, a great alternative for burgers, meatballs, and sauces.',
         price: 9000,
-        image: 'https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg',
+  // image removed
         stockStatus: 'in-stock',
         createdAt: new Date()
       }

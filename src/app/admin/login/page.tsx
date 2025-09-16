@@ -22,17 +22,20 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleLogin = () => {
-    // Dummy credentials
-    if (email === 'admin@example.com' && password === 'password') {
-      // In a real app, you would set a secure session cookie.
-      // We'll use localStorage for this prototype.
+  const handleLogin = async () => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role: 'ADMIN' }),
+    });
+    const data = await res.json();
+    if (res.ok) {
       localStorage.setItem('admin_auth', 'true');
       router.push('/admin');
     } else {
       toast({
         title: 'Error',
-        description: 'Invalid credentials. Please try again.',
+        description: data.error || 'Invalid credentials. Please try again.',
         variant: 'destructive',
       });
     }

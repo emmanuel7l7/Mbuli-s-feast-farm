@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Trash2, ShoppingCart } from 'lucide-react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Link from 'next/link';
 
 export default function CartPage() {
@@ -33,7 +33,7 @@ export default function CartPage() {
             {cartItems.map(item => (
               <Card key={item.id} className="flex items-center p-4">
                 <div className="relative w-24 h-24 rounded-md overflow-hidden">
-                  <Image src={item.image} alt={item.name} layout="fill" objectFit="cover" />
+                  {/* Image removed */}
                 </div>
                 <div className="flex-grow ml-4">
                   <h3 className="font-bold">{item.name}</h3>

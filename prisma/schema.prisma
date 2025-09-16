@@ -1,0 +1,42 @@
+model User {
+  id       String   @id @default(cuid())
+  email    String   @unique
+  password String
+  role     Role
+  deliveries Delivery[]
+}
+
+model Delivery {
+  id          String   @id @default(cuid())
+  address     String
+  status      String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+  DELIVERY
+}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  status      String
+}

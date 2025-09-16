@@ -2,26 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { ProductCard } from "@/components/product-card";
-import { db, type Product } from "@/lib/db";
+import type { Product } from "@/lib/types";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadProducts();
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(error => {
+        console.error('Error loading products:', error);
+      })
+      .finally(() => setLoading(false));
   }, []);
-
-  const loadProducts = async () => {
-    try {
-      const allProducts = await db.products.toArray();
-      setProducts(allProducts);
-    } catch (error) {
-      console.error('Error loading products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
