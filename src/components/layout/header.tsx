@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { ThemeToggle } from "../theme-toggle";
 import { LanguageToggle } from "../language-toggle";
@@ -11,8 +10,6 @@ import { CartButton } from "../cart-button";
 const navLinks = [
     { href: "/products", label: "Our Products" },
     { href: "/stores", label: "Find Us" },
-    { href: "/admin", label: "Admin" },
-    { href: "/delivery", label: "Delivery" },
 ];
 
 export function Header() {
@@ -66,7 +63,6 @@ export function Header() {
                         </span>
                     </Link>
                 </div>
-
 
                 <div className="flex flex-1 items-center justify-end space-x-2">
                     <CartButton />

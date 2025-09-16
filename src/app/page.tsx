@@ -1,66 +1,46 @@
+'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Utensils, Leaf, Award, Truck } from 'lucide-react';
+import { Utensils, Leaf, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ProductCard } from '@/components/product-card';
-import type { Product } from '@/lib/types';
-
-const allProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Whole Chicken',
-    description: 'Fresh, farm-raised whole chicken. Perfect for roasting.',
-    price: 15000,
-    image: 'https://placehold.co/600x400',
-    aiHint: 'whole chicken',
-    stockStatus: 'in-stock',
-  },
-  {
-    id: '2',
-    name: 'Chicken Thighs (1kg)',
-    description: 'Juicy and tender chicken thighs, bone-in and skin-on.',
-    price: 18000,
-    image: 'https://placehold.co/600x400',
-    aiHint: 'chicken thighs',
-    stockStatus: 'in-stock',
-  },
-  {
-    id: '3',
-    name: 'Chicken Breast (1kg)',
-    description: 'Lean and versatile boneless, skinless chicken breast. A healthy choice for any meal.',
-    price: 20000,
-    image: 'https://placehold.co/600x400',
-    aiHint: 'chicken breast',
-    stockStatus: 'in-stock',
-  },
-  {
-    id: '4',
-    name: 'Chicken Wings (1kg)',
-    description: 'Perfectly portioned wings, ready for your favorite sauce.',
-    price: 12000,
-    image: 'https://placehold.co/600x400',
-    aiHint: 'chicken wings',
-    stockStatus: 'out-of-stock',
-  },
-];
-
-// Filter out "out-of-stock" products for the featured section
-const featuredProducts = allProducts.filter(p => p.stockStatus !== 'out-of-stock').slice(0, 3);
+import { db, type Product } from '@/lib/db';
 
 export default function Home() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadFeaturedProducts();
+  }, []);
+
+  const loadFeaturedProducts = async () => {
+    try {
+      const products = await db.products
+        .where('stockStatus')
+        .notEqual('out-of-stock')
+        .limit(3)
+        .toArray();
+      setFeaturedProducts(products);
+    } catch (error) {
+      console.error('Error loading featured products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center text-center text-white">
         <Image
-          src="https://placehold.co/1600x900"
+          src="https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg"
           alt="Mbuli's Feast Farm"
-          layout="fill"
-          objectFit="cover"
-          className="absolute inset-0 z-0 brightness-50"
-          data-ai-hint="chicken farm"
+          fill
+          className="absolute inset-0 z-0 brightness-50 object-cover"
+          priority
         />
         <div className="relative z-10 p-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline font-bold drop-shadow-lg">
@@ -80,11 +60,10 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="relative w-full h-80 md:h-96 rounded-lg overflow-hidden shadow-xl">
                <Image
-                src="https://placehold.co/600x400"
+                src="https://images.pexels.com/photos/1300972/pexels-photo-1300972.jpeg"
                 alt="Farm landscape"
-                layout="fill"
-                objectFit="cover"
-                data-ai-hint="tanzania landscape"
+                fill
+                className="object-cover"
               />
             </div>
             <div>
@@ -144,41 +123,31 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline font-bold text-center text-primary">Featured Products</h2>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-300 h-56 rounded-t-lg"></div>
+                  <div className="p-6 space-y-3">
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-300 rounded w-full"></div>
+                    <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
           <div className="text-center mt-12">
             <Button asChild size="lg" variant="outline">
               <Link href="/products">View All Products</Link>
             </Button>
           </div>
-        </div>
-      </section>
-
-      <section className="py-16 md:py-24 border-t bg-secondary/50">
-        <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-                 <div>
-                    <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary">Join Our Delivery Team</h2>
-                    <p className="mt-4 text-lg text-foreground/80">
-                        Are you a reliable driver looking to earn with us? We're looking for delivery partners to help us bring fresh products to our customers' doors. Access your dashboard to manage deliveries.
-                    </p>
-                    <Button asChild size="lg" className="mt-8">
-                        <Link href="/delivery/login">Driver Login</Link>
-                    </Button>
-                </div>
-                <div className="relative w-full h-80 rounded-lg overflow-hidden shadow-xl">
-                   <Image
-                    src="https://placehold.co/600x400"
-                    alt="Delivery driver"
-                    layout="fill"
-                    objectFit="cover"
-                    data-ai-hint="delivery scooter"
-                  />
-                </div>
-            </div>
         </div>
       </section>
     </div>

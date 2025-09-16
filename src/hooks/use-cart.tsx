@@ -1,85 +1,111 @@
-
 'use client';
 
-import type { Product } from '@/lib/types';
+import type { Product, CartItem } from '@/lib/types';
+import { db } from '@/lib/db';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-export interface CartItem extends Product {
-  quantity: number;
-}
 
 interface CartContextType {
   cartItems: CartItem[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateItemQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  addItem: (product: Product, quantity?: number) => Promise<void>;
+  removeItem: (productId: number) => Promise<void>;
+  updateItemQuantity: (productId: number, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   cartCount: number;
   cartTotal: number;
+  loading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  
-  // Load cart from localStorage only on the client side
+  const [loading, setLoading] = useState(true);
+
+  // Load cart from IndexedDB
   useEffect(() => {
-    try {
-      const localData = localStorage.getItem('cart');
-      if (localData) {
-        setCartItems(JSON.parse(localData));
-      }
-    } catch (error) {
-      console.error("Error reading cart from localStorage", error);
-    }
+    loadCart();
   }, []);
 
-
-  useEffect(() => {
+  const loadCart = async () => {
     try {
-        // Avoid writing to localStorage on initial server render
-        if (cartItems.length > 0 || localStorage.getItem('cart') !== null) {
-            localStorage.setItem('cart', JSON.stringify(cartItems));
+      const cartData = await db.cart.toArray();
+      const items: CartItem[] = [];
+      
+      for (const cartItem of cartData) {
+        const product = await db.products.get(cartItem.productId);
+        if (product) {
+          items.push({
+            ...product,
+            quantity: cartItem.quantity
+          });
         }
+      }
+      
+      setCartItems(items);
     } catch (error) {
-        console.error("Error saving cart to localStorage", error);
+      console.error('Error loading cart:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [cartItems]);
+  };
 
-  const addItem = (product: Product, quantity = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-        );
+  const addItem = async (product: Product, quantity = 1) => {
+    try {
+      if (!product.id) return;
+      
+      const existingCartItem = await db.cart.where('productId').equals(product.id).first();
+      
+      if (existingCartItem) {
+        await db.cart.update(existingCartItem.id!, { 
+          quantity: existingCartItem.quantity + quantity 
+        });
+      } else {
+        await db.cart.add({
+          productId: product.id,
+          quantity,
+          addedAt: new Date()
+        });
       }
-      return [...prevItems, { ...product, quantity }];
-    });
+      
+      await loadCart();
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+    }
   };
 
-  const removeItem = (productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  const removeItem = async (productId: number) => {
+    try {
+      await db.cart.where('productId').equals(productId).delete();
+      await loadCart();
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+    }
   };
 
-  const updateItemQuantity = (productId: string, quantity: number) => {
-    setCartItems(prevItems => {
+  const updateItemQuantity = async (productId: number, quantity: number) => {
+    try {
       if (quantity <= 0) {
-        return prevItems.filter(item => item.id !== productId);
+        await removeItem(productId);
+        return;
       }
-      return prevItems.map(item =>
-        item.id === productId ? { ...item, quantity } : item
-      );
-    });
+      
+      await db.cart.where('productId').equals(productId).modify({ quantity });
+      await loadCart();
+    } catch (error) {
+      console.error('Error updating item quantity:', error);
+    }
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+  const clearCart = async () => {
+    try {
+      await db.cart.clear();
+      setCartItems([]);
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
   };
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
   const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
@@ -92,6 +118,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         cartCount,
         cartTotal,
+        loading,
       }}
     >
       {children}

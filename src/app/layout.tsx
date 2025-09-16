@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -8,6 +7,7 @@ import { Footer } from '@/components/layout/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Chatbot } from '@/components/chatbot';
 import { CartProvider } from '@/hooks/use-cart';
+import { DatabaseInitializer } from '@/components/database-initializer';
 
 export const metadata: Metadata = {
   title: "Mbuli's Feast Farm",
@@ -33,6 +33,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <DatabaseInitializer />
           <CartProvider>
             <div className="flex flex-col flex-1">
               <Header />
