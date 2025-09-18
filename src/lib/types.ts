@@ -1,3 +1,12 @@
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: 'Admin' | 'Customer' | 'Delivery';
+  status: 'active' | 'suspended';
+}
+
 export interface Product {
   id?: number;
   name: string;
