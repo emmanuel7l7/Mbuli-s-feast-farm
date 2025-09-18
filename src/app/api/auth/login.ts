@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   if (!email || !password || !role) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
-  const user = await prisma.user.findUnique({ where: { email } });
+  // TODO: Replace with new database logic
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
